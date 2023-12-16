@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <iostream>
 #include <fstream>
@@ -44,17 +46,16 @@ public:
     string archPath, instPath, netPath, outPath;
 };
 
-class Resource
+class Slot
 {
 public:
-    Resource(int _Rid, float _x, float _y)
+    Slot(int _Rid, float _x, float _y)
         : Rid(_Rid), x(_x), y(_y)
     {
-        used = false;
+        stored = -1;
     }
-    int Rid, inst;
+    int Rid, inst, stored;
     float x, y;
-    bool used;
 };
 
 class Instance
