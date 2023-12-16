@@ -21,20 +21,22 @@ void archParser(string path)
     istringstream iss;
     string line, typeStr, name;
     float x, y;
-    int Rid = 0;
+    int Rid = 0, type;
     while (getline(in_file, line))
     {
         istringstream iss(line);
         iss >> name >> typeStr >> x >> y;
 
-        if (typeStr == "CLB")
-            Resource[CLB].emplace_back(Slot(Rid++, x, y));
-        else if (typeStr == "RAM")
-            Resource[RAM].emplace_back(Slot(Rid++, x, y));
-        else if (typeStr == "DSP")
-            Resource[DSP].emplace_back(Slot(Rid++, x, y));
-        else
-            cout << "Error! There's no type \"" << typeStr << "\"\n";
+        type = (typeStr != "DSP") ? ((typeStr != "RAM") ? 0 : 1) : 2;
+        Resource[type].emplace_back(Slot(Rid++, x, y));
+        // if (typeStr == "CLB")
+        //     Resource[CLB].emplace_back(Slot(Rid++, x, y));
+        // else if (typeStr == "RAM")
+        //     Resource[RAM].emplace_back(Slot(Rid++, x, y));
+        // else if (typeStr == "DSP")
+        //     Resource[DSP].emplace_back(Slot(Rid++, x, y));
+        // else
+        //     cout << "Error! There's no type \"" << typeStr << "\"\n";
     }
 
     in_file.close();
@@ -117,8 +119,9 @@ void netParser(string path)
     in_file.close();
 }
 
-double HPWL(){
-    
+double HPWL()
+{
+
     auto start_time = chrono::system_clock::now();
     // compute ttl WL
     double hpwl = 0;
@@ -183,39 +186,45 @@ bool accept(double cost, int T, double baselineWL)
 /* return: delta cost (newWL - oldWL) */
 double perturb()
 {
-    // global swap
+    // global swap (CLB only)
     vector<float> X_coords, Y_coords;
     int Iid = rand() % instances.size();
     Instance &inst = instances[Iid];
 
-    // extract neighbors' x, y coords; get origin hpwl in 
-    for(int nId: inst.net){
+    // extract neighbors' x, y coords; get origin hpwl in
+    for (int nId : inst.net)
+    {
         vector<int> &neighborInst = nets[nId].insts;
-        for(int nbr: neighborInst){
-            X_coords.emplace_back(instances[nbr].x);
-            Y_coords.emplace_back(instances[nbr].y);
+        for (int nbr : neighborInst)
+        {
+            if (instances[nbr].type == 0)
+            {
+                X_coords.emplace_back(instances[nbr].x);
+                Y_coords.emplace_back(instances[nbr].y);
+            }
         }
     }
 
     sort(X_coords.begin(), X_coords.end());
     sort(Y_coords.begin(), Y_coords.end());
-    
-    nth_element(X_coords.begin(), X_coords.begin()+(X_coords.size() / 2), X_coords.end());
-    nth_element(Y_coords.begin(), Y_coords.begin()+(Y_coords.size() / 2), Y_coords.end());
-    size_t 
+
+    nth_element(X_coords.begin(), X_coords.begin() + (X_coords.size() / 2), X_coords.end());
+    nth_element(Y_coords.begin(), Y_coords.begin() + (Y_coords.size() / 2), Y_coords.end());
+    size_t
         xmid1 = X_coords.size() / 2,
         xmid2 = (X_coords.size() < 2) ? (xmid1) : (xmid1 + 1),
         ymid1 = Y_coords.size() / 2,
         ymid2 = (Y_coords.size() < 2) ? (ymid1) : (ymid1 + 1);
-    float 
+    float
         X_mid1{X_coords[xmid1]},
         X_mid2{X_coords[xmid2]},
         Y_mid1{X_coords[ymid1]},
         Y_mid2{X_coords[ymid2]};
-    
+
     // getting the resource in optimal region by Binary search, check if the resource is occupied or not
+    
 
-
+    // another perturb: swap with other resource slot
 }
 
 void revert()
@@ -273,7 +282,7 @@ int main(int argc, char *argv[])
     netParser(arg.netPath);
 
     // checkParsers(instances, nets, Resource);
-    
+
     initPlace();
 
     // SA();

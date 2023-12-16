@@ -32,10 +32,10 @@ void output(string outputPath, vector<Instance> &instances)
 {
     ofstream outputfile;
     outputfile.open(outputPath);
-    for (auto nIO : instances)
+    for (auto inst : instances)
     {
-        outputfile << nIO.name << " "
-                   << "RESOURCE" << nIO.rsrc + 1 << endl;
+        outputfile << inst.name << " "
+                   << "RESOURCE" << inst.rsrc + 1 << endl;
     }
 
     outputfile.flush();
@@ -47,59 +47,59 @@ bool checkValid(vector<Instance> & instances, vector<vector<Slot>> &Resource)
 {
     cout << "Checking if the answer is valid..." << endl;
 
-    for (auto nIO : instances)
+    for (auto inst : instances)
     {
-        if (nIO.type == 0)
+        if (inst.type == 0)
         {
-            if (nIO.rsrc < (int)Resource[CLB].size() and nIO.rsrc >= 0)
+            if (inst.rsrc < (int)Resource[CLB].size() and inst.rsrc >= 0)
             {
-                if (Resource[CLB][nIO.rsrc].stored != nIO.Iid)
+                if (Resource[CLB][inst.rsrc].stored != inst.Iid)
                 {
-                    cout << "Invalid! Slot stored " << Resource[CLB][nIO.rsrc].stored << " and instance Iid " << nIO.Iid << "miss match" << endl;
+                    cout << "Invalid! Slot stored " << Resource[CLB][inst.rsrc].stored << " and instance Iid " << inst.Iid << "miss match" << endl;
                     return false;
                 }
             }
             else
             {
-                cout << "Invalid! Slot id in instance " << nIO.name << ": " << nIO.rsrc << endl;
+                cout << "Invalid! Slot id in instance " << inst.name << ": " << inst.rsrc << endl;
                 return false;
             }
         }
-        else if (nIO.type == 1)
+        else if (inst.type == 1)
         {
-            if (nIO.rsrc < (int)Resource[RAM].size() and nIO.rsrc >= 0)
+            if (inst.rsrc < (int)Resource[RAM].size() and inst.rsrc >= 0)
             {
-                if (Resource[RAM][nIO.rsrc].stored != nIO.Iid)
+                if (Resource[RAM][inst.rsrc].stored != inst.Iid)
                 {
-                    cout << "Invalid! Slot stored idx " << Resource[RAM][nIO.rsrc].stored << " and instance Iid " << nIO.Iid << "miss match" << endl;
+                    cout << "Invalid! Slot stored idx " << Resource[RAM][inst.rsrc].stored << " and instance Iid " << inst.Iid << "miss match" << endl;
                     return false;
                 }
             }
             else
             {
-                cout << "Invalid! Slot id in instance " << nIO.name << " is wrong: " << nIO.rsrc << endl;
+                cout << "Invalid! Slot id in instance " << inst.name << " is wrong: " << inst.rsrc << endl;
                 return false;
             }
         }
-        else if (nIO.type == 2)
+        else if (inst.type == 2)
         {
-            if (nIO.rsrc < (int)Resource[DSP].size() and nIO.rsrc >= 0)
+            if (inst.rsrc < (int)Resource[DSP].size() and inst.rsrc >= 0)
             {
-                if (Resource[DSP][nIO.rsrc].stored != nIO.Iid)
+                if (Resource[DSP][inst.rsrc].stored != inst.Iid)
                 {
-                    cout << "Invalid! Slot stored idx " << Resource[DSP][nIO.rsrc].stored << " and instance Iid " << nIO.Iid << "miss match" << endl;
+                    cout << "Invalid! Slot stored idx " << Resource[DSP][inst.rsrc].stored << " and instance Iid " << inst.Iid << "miss match" << endl;
                     return false;
                 }
             }
             else
             {
-                cout << "Invalid! Slot id in instance " << nIO.name << " is wrong: " << nIO.rsrc << endl;
+                cout << "Invalid! Slot id in instance " << inst.name << " is wrong: " << inst.rsrc << endl;
                 return false;
             }
         }
         else
         {
-            cout << "Invalid! Instance " << nIO.name << " has invalid type number: " << nIO.type << endl;
+            cout << "Invalid! Instance " << inst.name << " has invalid type number: " << inst.type << endl;
             return false;
         }
     }
@@ -109,13 +109,13 @@ bool checkValid(vector<Instance> & instances, vector<vector<Slot>> &Resource)
 
 void updateResourceToBest(vector<Instance> & bestInstances, vector<vector<Slot>> &Resource)
 {
-    for (auto &nIO : bestInstances)
+    for (auto &inst : bestInstances)
     {
-        if (nIO.type == 0)
-            Resource[CLB][nIO.rsrc].stored = nIO.Iid;
-        else if (nIO.type == 1)
-            Resource[RAM][nIO.rsrc].stored = nIO.Iid;
+        if (inst.type == 0)
+            Resource[CLB][inst.rsrc].stored = inst.Iid;
+        else if (inst.type == 1)
+            Resource[RAM][inst.rsrc].stored = inst.Iid;
         else
-            Resource[DSP][nIO.rsrc].stored = nIO.Iid;
+            Resource[DSP][inst.rsrc].stored = inst.Iid;
     }
 }
