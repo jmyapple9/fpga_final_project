@@ -7,7 +7,8 @@
 #include <cstdlib>
 #include <string>
 #include <chrono>
-#include <climits>
+#include <cfloat>
+// #include <climits>
 #include <random>
 #include <vector>
 #include <ctime>
@@ -54,7 +55,7 @@ public:
     {
         stored = -1;
     }
-    int Rid, inst, stored;
+    int Rid, stored;
     float x, y;
 };
 
