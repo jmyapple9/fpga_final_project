@@ -124,7 +124,7 @@ void netParser(string path)
 double HPWL()
 {
 
-    cout << "Enter HPWL" << endl;
+    // cout << "Enter HPWL" << endl;
     // auto start_time = chrono::system_clock::now();
     // compute ttl WL
     double hpwl = 0;
@@ -151,13 +151,13 @@ double HPWL()
     // cout << "hpwl after initPlace: " << hpwl << endl;
     // auto realDuration = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - start_time);
     // cout << "duration: " << realDuration.count() << " seconds." << endl;
-    cout << "end HPWL" << endl;
+    // cout << "end HPWL" << endl;
     return hpwl;
 }
 
 void initPlace()
 {
-    cout << "Enter initPlace" << endl;
+    // cout << "Enter initPlace" << endl;
     int clbIdx{0}, ramIdx{0}, dspIdx{0};
     for (auto &inst : instances)
     {
@@ -194,12 +194,12 @@ void initPlace()
 bool accept(double cost, int T, double baselineWL)
 {
     double random = static_cast<double>(rand()) / RAND_MAX;
-    bool ac = exp(-cost / baselineWL / T) > random;
-    // cout << (ac ? "accept" : "notAccept") << endl;
+    bool ac = exp(-cost*10000 / T ) > random;
+    // cout << (ac ? "accept" : "notAccept") << ": " << exp(-cost*1000 / T )  << endl;
 
     return ac;
 }
-
+// 46815
 struct ascendingX
 {
     inline bool operator()(const int &instId1, const int &instId2)
@@ -215,57 +215,52 @@ struct ascendingY
         return (instances[instId1].y < instances[instId2].y);
     }
 };
-void Swap(int type, int r1, int r2)
+void Swap(int type, int r1, int r2, bool reverting)
 {
-    // cout << "enter swap" << endl;
+    // if (reverting)
+    //     cout << "r: " << type << ", " << r1 << ", " << r2 << endl;
+    // else
+    //     cout << "s: " << type << ", " << r1 << ", " << r2 << endl;
+
+    // cout << "enter swap: " << type<<", " << r1 << ", " << r2 << endl;
     Slot &slot1 = Resource[type][r1];
     Slot &slot2 = Resource[type][r2];
     Instance &inst1 = instances[slot1.stored];
+
+    if (slot1.stored == -1)
+        cout << "Error! slot1 should never be empty" << endl;
+
     if (slot2.stored == -1)
     {
-        cout << "swap 1" << endl;
         slot2.stored = inst1.Iid;
         slot1.stored = -1;
 
-        inst1.rsrc = slot2.Rid;
+        inst1.rsrc = r2;
         inst1.x = slot2.x;
         inst1.y = slot2.y;
     }
     else
     {
-        cout << "swap 2" << endl;
+        // cout << "swap 2" << endl;
         Instance &inst2 = instances[slot2.stored];
         // Instance tmp1 = instances[slot1.stored];
         if (inst1.type != inst2.type)
             cout << "Error! try swapping instances in different type!" << endl;
 
-        slot1.stored = inst1.Iid;
-        slot2.stored = inst2.Iid;
+        slot1.stored = inst2.Iid;
+        slot2.stored = inst1.Iid;
 
         inst1.x = slot2.x;
         inst1.y = slot2.y;
-        inst1.rsrc = slot2.Rid;
+        inst1.rsrc = r2;
+        // inst1.rsrc = slot2.Rid;
 
         inst2.x = slot1.x;
         inst2.y = slot1.y;
-        inst2.rsrc = slot1.Rid;
+        inst2.rsrc = r1;
+        // inst2.rsrc = slot1.Rid;
     }
     // cout << "exit swap" << endl;
-    /* Instance &inst1 = instances[instId1];
-    Instance &inst2 = instances[instId2];
-    Instance tmp1 = instances[instId1];
-    if (inst1.type != inst2.type)
-        cout << "Error! try swapping instances in different type!" << endl;
-
-    inst1.x = inst2.x;
-    inst1.y = inst2.y;
-    inst1.rsrc = inst2.rsrc;
-    inst2.x = tmp1.x;
-    inst2.y = tmp1.y;
-    inst2.rsrc = tmp1.rsrc;
-
-    Resource[inst1.type][inst1.rsrc].stored = instId1;
-    Resource[inst2.type][inst2.rsrc].stored = instId2; */
 }
 
 void perturb()
@@ -283,101 +278,13 @@ void perturb()
     ResID = rand() % Resource[randInst.type].size();
     // Slot &slot = Resource[randInst.type][ResID];
     oldtype = randInst.type, oldr1 = randInst.rsrc, oldr2 = ResID;
-    Swap(randInst.type, randInst.rsrc, ResID);
+    Swap(randInst.type, randInst.rsrc, ResID, false);
 
-    int cnt = 0;
-    for (size_t i = 0; i < Resource[0].size(); i++)
-        if(Resource[0][i].stored != -1) cnt++;
-    cout << cnt << " clb in total" << endl;
-    /* if (slot.stored == -1)
-    {
-        Resource[randInst.type][randInst.rsrc].stored = -1;
-        slot.stored = instID;
-        randInst.rsrc = slot.Rid;
-        randInst.x = slot.x;
-        randInst.y = slot.y;
-    }
-    else
-    {
-        Resource[randInst.type][randInst.rsrc].stored = slot.stored;
-        slot.stored = instID;
-        randInst.rsrc = slot.Rid;
-        randInst.x = slot.x;
-        randInst.y = slot.y;
-    } */
-
-    // cout << "end perturb" << endl;
-    /*
-    // global swap (CLB only)
-    vector<int> X_coords, Y_coords;
-    // vector<float> X_coords, Y_coords;
-    int Iid = rand() % instances.size();
-    Instance &inst = instances[Iid];
-
-    // extract neighbors' x, y coords; get origin hpwl in
-    for (int nId : inst.net)
-    {
-        vector<int> &neighborInst = nets[nId].insts;
-        for (int nbr : neighborInst)
-        {
-            if (instances[nbr].type == 0)
-            {
-                X_coords.emplace_back(nbr);
-                Y_coords.emplace_back(nbr);
-            }
-        }
-    }
-
-    sort(X_coords.begin(), X_coords.end(), ascendingX());
-    sort(Y_coords.begin(), Y_coords.end(), ascendingY());
-
-    // nth_element(X_coords.begin(), X_coords.begin() + (X_coords.size() / 2), X_coords.end());
-    // nth_element(Y_coords.begin(), Y_coords.begin() + (Y_coords.size() / 2), Y_coords.end());
-    int range = 1;
-    size_t
-        xmid1 = min(X_coords.size() / 2 + range, X_coords.size() - 1),
-        xmid2 = max(X_coords.size() / 2 - range, 0UL),
-        ymid1 = min(Y_coords.size() / 2 + range, Y_coords.size() - 1),
-        ymid2 = max(Y_coords.size() / 2 - range, 0UL);
-    float
-        X_mid1{instances[X_coords[xmid1]].x},
-        X_mid2{instances[X_coords[xmid2]].x},
-        Y_mid1{instances[X_coords[ymid1]].y},
-        Y_mid2{instances[X_coords[ymid2]].y};
-    // cout << "X_mid1: " << X_mid1 << ", X_mid2: " << X_mid2 << ", Y_mid1: " << Y_mid1 << ", Y_mid2: " << Y_mid2 << endl;
-
-    int bestOne = -1;
-    double current_best = DBL_MAX;
-     for (auto &clbSlot : Resource[CLB])
-    {
-        if(X_mid1 <= clbSlot.x)
-    }
-    for (auto clbID : X_coords)
-    {
-        Instance& clb = instances[clbID];
-        if ((X_mid1 <= clb.x and clb.x <= X_mid2) or
-            (Y_mid1 <= clb.y and clb.y <= Y_mid2))
-        {
-            double oldHPWL = HPWL();
-            Swap(clb.Iid, inst.Iid);
-            double newHPWL = HPWL();
-            if (newHPWL < oldHPWL and newHPWL < current_best){
-                bestOne = clb.Iid;
-                current_best = newHPWL;
-            }
-            Swap(clb.Iid, inst.Iid);
-        }
-    }
-    if (bestOne == -1)
-    {
-        cout << "fail to do global swap..." << endl;
-    }
-    else
-    {
-        cout << "global swap" << endl;
-        Swap(bestOne, inst.Iid);
-    } */
-    // another perturb: swap with other resource slot
+    // int cnt = 0;
+    // for (size_t i = 0; i < Resource[0].size(); i++)
+    //     if (Resource[0][i].stored != -1)
+    //         cnt++;
+    // cout << cnt << " clb in total" << endl;
 }
 
 void revert()
@@ -397,18 +304,12 @@ void SA()
         while (uphill < N and nAns < 2 * N)
         {
             // int act = rand() % 4;
-            // if (!checkValid(instances, Resource))
-            // {
-            //     break;
-            // }
             perturb();
             ++nAns;
             perturbWL = HPWL();
 
-            // cout << "originWL: " << originWL <<endl;
-            // cout << "perturbWL: " << perturbWL<<endl;
             double deltaCost = perturbWL - originWL;
-            if (deltaCost <= 0 /* or accept(deltaCost, T, originWL / 600000) */)
+            if (deltaCost <= 0/*  or accept(deltaCost, T, originWL) */)
             {
                 if (deltaCost > 0)
                     ++uphill;
@@ -423,14 +324,13 @@ void SA()
             else
             {
                 ++reject;
-                // revert();
-                Swap(oldtype, oldr1, oldr2);
+                Swap(oldtype, oldr2, oldr1, true);
             }
         }
 
         T *= reduceRatio;
-        // if (T % 10000 == 0)
-        cout << "T: " << T << ", bestWL: " << bestWL << endl;
+        if (T % 100 == 0)
+            cout << "T: " << T << ", bestWL: " << bestWL << endl;
     } while (/* reject / nAns <= 0.95 and */ T > 10);
     cout << "end SA" << endl;
 }
@@ -445,9 +345,10 @@ int main(int argc, char *argv[])
     netParser(arg.netPath);
 
     // checkParsers(instances, nets, Resource);
-
+    cout << "Given input's HPWL: " << HPWL() << endl;
     initPlace();
-    
+    cout << "After initPlace HPWL: " << HPWL() << endl;
+
     // cout << Resource[0][i].stored << endl;
     SA();
 
