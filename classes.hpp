@@ -14,6 +14,7 @@
 #include <ctime>
 #include <cmath>
 #include <list>
+#include <iomanip>
 #include <algorithm>
 #include <unordered_map>
 
@@ -50,6 +51,7 @@ public:
 class Slot
 {
 public:
+    Slot(){};
     Slot(int _Rid, float _x, float _y)
         : Rid(_Rid), x(_x), y(_y)
     {

@@ -1,19 +1,34 @@
+EXEC = ./legalizer
+VRFY = ./verifier2
+
+INPUT_DIR = ./input
+OUTPUT_DIR = ./output
+
 all: clean
 	g++ -std=c++17 -O3 -Wall -Wextra main.cpp -o legalizer
 
-1: all
-	./legalizer ./input/testcase1/architecture.txt ./input/testcase1/instance.txt ./input/testcase1/netlist.txt ./output/output1.txt
+# Define the run target
+run:
+	@echo "Usage: make runA, where A is the testcase number"
 
-2: all
-	./legalizer ./input/testcase2/architecture.txt ./input/testcase2/instance.txt ./input/testcase2/netlist.txt ./output/output2.txt
+verify:
+	@echo "Usage: make verifyA, where A is the testcase number"
 
-3: all
-	./legalizer ./input/testcase3/architecture.txt ./input/testcase3/instance.txt ./input/testcase3/netlist.txt ./output/output3.txt
+runall:
+	@echo "Usage: make runallA, where A is the testcase number"
 
-4: all
-	./legalizer ./input/testcase4/architecture.txt ./input/testcase4/instance.txt ./input/testcase4/netlist.txt ./output/output4.txt
+run%: all
+	$(EXEC) $(INPUT_DIR)/testcase$*/architecture.txt $(INPUT_DIR)/testcase$*/instance.txt $(INPUT_DIR)/testcase$*/netlist.txt $(OUTPUT_DIR)/output$*.txt
 
-runall: 1 2 3 4
+verify%:
+	$(VRFY) $(INPUT_DIR)/testcase$*/architecture.txt $(INPUT_DIR)/testcase$*/instance.txt $(INPUT_DIR)/testcase$*/netlist.txt $(OUTPUT_DIR)/output$*.txt
+
+runall%: all
+	$(EXEC) $(INPUT_DIR)/testcase$*/architecture.txt $(INPUT_DIR)/testcase$*/instance.txt $(INPUT_DIR)/testcase$*/netlist.txt $(OUTPUT_DIR)/output$*.txt
+	$(VRFY) $(INPUT_DIR)/testcase$*/architecture.txt $(INPUT_DIR)/testcase$*/instance.txt $(INPUT_DIR)/testcase$*/netlist.txt $(OUTPUT_DIR)/output$*.txt
 
 clean:
 	rm -f legalizer
+
+# Phony target to prevent conflicts with files named 'run'
+.PHONY: run verify runall

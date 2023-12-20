@@ -50,8 +50,8 @@ void output(string outputPath, vector<Instance> &instances, vector<vector<Slot>>
 
 bool checkValid(vector<Instance> &instances, vector<vector<Slot>> &Resource)
 {
-    cout << "Checking if the answer is valid..." << endl;
-
+    cout << "Checking if the answer is valid...";
+    // cout << "instances.size(): "<< instances.size() << endl;
     for (auto inst : instances)
     {
         if (inst.type == 0)
@@ -124,3 +124,5 @@ void updateResourceToBest(vector<Instance> &bestInstances, vector<vector<Slot>> 
             Resource[DSP][inst.rsrc].stored = inst.Iid;
     }
 }
+
+bool compareSlotByX(const Slot &slot1, const Slot &slot2) { return slot1.x < slot2.x; }
