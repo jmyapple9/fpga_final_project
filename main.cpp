@@ -156,6 +156,38 @@ double HPWL()
     return hpwl;
 }
 
+void initPlace2()
+{
+    for (auto &inst : instances)
+    {
+        int type = inst.type;
+        int bestSlotID = -1;
+        int slotID = 0;
+        float shortestDist = numeric_limits<float>::max();
+        if (inst.type == 3)
+            continue;
+        for (auto res : Resource[type])
+        {
+            if (res.stored == -1)
+            {
+
+                float dist = abs(res.x - inst.x) + abs(res.y - inst.y);
+                if (dist < shortestDist)
+                {
+                    shortestDist = dist;
+                    bestSlotID = slotID;
+                }
+            }
+            slotID++;
+            // unsigned SlotID = distance(Resource[type].begin(), can);
+        }
+        inst.rsrc = bestSlotID;
+        inst.x = Resource[type][bestSlotID].x;
+        inst.y = Resource[type][bestSlotID].y;
+        Resource[type][bestSlotID].stored = inst.Iid;
+    }
+}
+
 void initPlace()
 {
     // cout << "Enter initPlace" << endl;
@@ -378,11 +410,12 @@ int main(int argc, char *argv[])
     double rawHPWL = -1.0, initHPWL = -1.0;
     rawHPWL = HPWL();
     initPlace();
+    // initPlace2(); // return the same initial placement as initPlace
     // randomInitPlace();
-    initHPWL = originWL = HPWL();
+    bestHPWL = initHPWL = originWL = HPWL();
     bestInstances = instances;
 
-    SA();
+    // SA();
 
     updateResourceToBest(bestInstances, Resource);
     instances = bestInstances;
@@ -397,7 +430,8 @@ int main(int argc, char *argv[])
     cout << "Given input's HPWL: " << setprecision(10) << rawHPWL << endl;
     cout << "After initPlace HPWL: " << setprecision(10) << initHPWL << endl;
     cout << "Best HPWL after legalization: " << setprecision(10) << bestHPWL << ", which has " << setprecision(5)
-         << ((10000 * ((rawHPWL - bestHPWL) / rawHPWL)) / 100) << "%"<<" imporved than Given input's HPWL" << endl;
+         << ((10000 * ((rawHPWL - bestHPWL) / rawHPWL)) / 100) << "%"
+         << " imporved than Given input's HPWL" << endl;
 
     output(arg.outPath, bestInstances, Resource);
 }
