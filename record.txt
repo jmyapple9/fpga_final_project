@@ -1,0 +1,539 @@
+Greedy only:
+double reject, reduceRatio = 0.9999;
+int nAns, uphill, T = 10000000, N = 100; // N: number of answer in T
+srand(1)
+====================== Running testcase 1 ======================
+rm -f legalizer
+g++ -std=c++17 -O3 -Wall -Wextra main.cpp -o legalizer
+./legalizer ./input/testcase1/architecture.txt ./input/testcase1/instance.txt ./input/testcase1/netlist.txt ./output/output1.txt
+T: 9999000, bestHPWL: 16272
+T: 9998000, bestHPWL: 16272
+T: 9997000, bestHPWL: 16272
+T: 9996000, bestHPWL: 16272
+T: 9995000, bestHPWL: 16272
+T: 9994000, bestHPWL: 16272
+T: 9993000, bestHPWL: 16272
+T: 9992000, bestHPWL: 16272
+T: 9991000, bestHPWL: 16272
+T: 9990000, bestHPWL: 16272
+T: 9840200, bestHPWL: 16078
+T: 9652000, bestHPWL: 15666
+T: 9522500, bestHPWL: 15659
+T: 9442800, bestHPWL: 15605
+T: 9291900, bestHPWL: 15458
+T: 9225200, bestHPWL: 15425
+T: 9002700, bestHPWL: 15386
+T: 8986500, bestHPWL: 15386
+T: 8874800, bestHPWL: 15337
+T: 8732100, bestHPWL: 15168.5
+T: 8692000, bestHPWL: 15115.5
+T: 8680700, bestHPWL: 15115.5
+T: 8505300, bestHPWL: 15094
+T: 8463700, bestHPWL: 15094
+T: 8402100, bestHPWL: 15062
+T: 8185500, bestHPWL: 14987
+T: 8167500, bestHPWL: 14986
+T: 8104000, bestHPWL: 14917
+T: 7798500, bestHPWL: 14592
+T: 7794600, bestHPWL: 14592
+T: 7790700, bestHPWL: 14592
+T: 7713900, bestHPWL: 14585
+T: 7703100, bestHPWL: 14585
+T: 7645500, bestHPWL: 14585
+T: 7567100, bestHPWL: 14585
+T: 7396400, bestHPWL: 14570
+T: 7392700, bestHPWL: 14570
+T: 7369800, bestHPWL: 14570
+T: 7002400, bestHPWL: 14499.5
+T: 6987000, bestHPWL: 14499.5
+T: 6919500, bestHPWL: 14484.5
+T: 6876700, bestHPWL: 14405.5
+T: 6836900, bestHPWL: 14346.5
+T: 6749200, bestHPWL: 14340.5
+T: 6746500, bestHPWL: 14340.5
+T: 6743800, bestHPWL: 14340.5
+T: 6741100, bestHPWL: 14340.5
+T: 6699400, bestHPWL: 14329.5
+T: 6692700, bestHPWL: 14329.5
+T: 6671300, bestHPWL: 14308.5
+T: 6597600, bestHPWL: 14257
+T: 6594300, bestHPWL: 14257
+T: 6591000, bestHPWL: 14257
+T: 6531900, bestHPWL: 14221
+T: 6503200, bestHPWL: 14221
+T: 6486300, bestHPWL: 14221
+T: 6406300, bestHPWL: 14154
+T: 6303900, bestHPWL: 14140
+T: 6285000, bestHPWL: 14140
+T: 6276200, bestHPWL: 14140
+T: 6238000, bestHPWL: 14140
+T: 6213700, bestHPWL: 14140
+T: 6205000, bestHPWL: 14140
+T: 6115600, bestHPWL: 14092
+T: 6080200, bestHPWL: 14043
+T: 6064400, bestHPWL: 14043
+T: 6001000, bestHPWL: 14043
+T: 5988400, bestHPWL: 14043
+T: 5841000, bestHPWL: 14039
+T: 5800800, bestHPWL: 14039
+T: 5767800, bestHPWL: 14039
+T: 5721800, bestHPWL: 14039
+T: 5711500, bestHPWL: 14039
+T: 5707500, bestHPWL: 14039
+T: 5624700, bestHPWL: 14039
+T: 5598300, bestHPWL: 14039
+T: 5595500, bestHPWL: 14039
+T: 5592700, bestHPWL: 14039
+T: 5589900, bestHPWL: 14039
+T: 5573700, bestHPWL: 14039
+T: 5558100, bestHPWL: 14039
+T: 5543100, bestHPWL: 14039
+T: 5537000, bestHPWL: 14039
+T: 5505500, bestHPWL: 14039
+T: 5468700, bestHPWL: 14039
+T: 5436500, bestHPWL: 14039
+T: 5427800, bestHPWL: 14039
+T: 5398000, bestHPWL: 14039
+T: 5395300, bestHPWL: 14039
+T: 5392600, bestHPWL: 14039
+T: 5389900, bestHPWL: 14039
+T: 5358700, bestHPWL: 14039
+T: 5283600, bestHPWL: 13947
+T: 5258800, bestHPWL: 13947
+T: 5185100, bestHPWL: 13945
+T: 5061000, bestHPWL: 13945
+T: 5013100, bestHPWL: 13918
+T: 4976100, bestHPWL: 13918
+T: 4929000, bestHPWL: 13918
+T: 4834200, bestHPWL: 13903
+T: 4789400, bestHPWL: 13886
+T: 4475100, bestHPWL: 13824.5
+T: 4453200, bestHPWL: 13824.5
+T: 4425200, bestHPWL: 13824.5
+T: 4419000, bestHPWL: 13824.5
+T: 4387700, bestHPWL: 13824.5
+T: 4370600, bestHPWL: 13824.5
+T: 4346600, bestHPWL: 13824.5
+T: 4335300, bestHPWL: 13824.5
+T: 4297700, bestHPWL: 13775.5
+T: 4293400, bestHPWL: 13775.5
+T: 4274100, bestHPWL: 13775.5
+T: 4248500, bestHPWL: 13775.5
+T: 4246800, bestHPWL: 13775.5
+T: 4245100, bestHPWL: 13775.5
+T: 4243400, bestHPWL: 13775.5
+T: 4241700, bestHPWL: 13775.5
+T: 4240000, bestHPWL: 13760.5
+T: 4176800, bestHPWL: 13730.5
+T: 4138500, bestHPWL: 13680.5
+T: 4098500, bestHPWL: 13680.5
+T: 4094400, bestHPWL: 13680.5
+T: 4090300, bestHPWL: 13680.5
+T: 4085800, bestHPWL: 13680.5
+T: 4008000, bestHPWL: 13672.5
+T: 3982000, bestHPWL: 13661.5
+T: 3930500, bestHPWL: 13661.5
+T: 3896800, bestHPWL: 13661.5
+T: 3892900, bestHPWL: 13661.5
+T: 3882000, bestHPWL: 13661.5
+T: 3863000, bestHPWL: 13661.5
+T: 3854500, bestHPWL: 13661.5
+T: 3781100, bestHPWL: 13639
+T: 3706500, bestHPWL: 13597
+T: 3644300, bestHPWL: 13597
+T: 3638100, bestHPWL: 13584
+T: 3500500, bestHPWL: 13530
+T: 3489300, bestHPWL: 13530
+T: 3457300, bestHPWL: 13530
+T: 3380600, bestHPWL: 13520
+T: 3373500, bestHPWL: 13520
+T: 3359000, bestHPWL: 13520
+T: 3350600, bestHPWL: 13520
+T: 3334200, bestHPWL: 13520
+T: 3321200, bestHPWL: 13514
+T: 3311900, bestHPWL: 13514
+T: 3285800, bestHPWL: 13509
+T: 3259900, bestHPWL: 13509
+T: 3225800, bestHPWL: 13502
+T: 3215800, bestHPWL: 13502
+T: 3170700, bestHPWL: 13502
+T: 3098800, bestHPWL: 13502
+T: 3095700, bestHPWL: 13502
+T: 3092600, bestHPWL: 13502
+T: 3025800, bestHPWL: 13344
+T: 3013700, bestHPWL: 13337
+T: 2923600, bestHPWL: 13319
+T: 2824000, bestHPWL: 13244
+T: 2786900, bestHPWL: 13244
+T: 2764100, bestHPWL: 13244
+T: 2714700, bestHPWL: 13244
+T: 2703300, bestHPWL: 13244
+T: 2683600, bestHPWL: 13229
+T: 2649400, bestHPWL: 13228
+T: 2644100, bestHPWL: 13228
+T: 2635900, bestHPWL: 13228
+T: 2618000, bestHPWL: 13209
+T: 2599700, bestHPWL: 13209
+T: 2598400, bestHPWL: 13209
+T: 2597100, bestHPWL: 13209
+T: 2595800, bestHPWL: 13209
+T: 2594500, bestHPWL: 13209
+T: 2593200, bestHPWL: 13209
+T: 2591900, bestHPWL: 13209
+T: 2590600, bestHPWL: 13209
+T: 2535900, bestHPWL: 13209
+T: 2508100, bestHPWL: 13194
+T: 2481600, bestHPWL: 13194
+T: 2451200, bestHPWL: 13194
+T: 2448500, bestHPWL: 13194
+T: 2443600, bestHPWL: 13194
+T: 2401600, bestHPWL: 13194
+T: 2363400, bestHPWL: 13184
+T: 2330000, bestHPWL: 13161
+T: 2298000, bestHPWL: 13161
+T: 2295700, bestHPWL: 13161
+T: 2293400, bestHPWL: 13161
+T: 2291100, bestHPWL: 13161
+T: 2253300, bestHPWL: 13161
+T: 2224800, bestHPWL: 13161
+T: 2213900, bestHPWL: 13161
+T: 2204600, bestHPWL: 13160
+T: 2171700, bestHPWL: 13160
+T: 2131800, bestHPWL: 13160
+T: 2108000, bestHPWL: 13156
+T: 2054800, bestHPWL: 13156
+T: 2028800, bestHPWL: 13122
+T: 2013000, bestHPWL: 13122
+T: 1977000, bestHPWL: 13109
+T: 1932900, bestHPWL: 13109
+T: 1924200, bestHPWL: 13109
+T: 1889400, bestHPWL: 13109
+T: 1858400, bestHPWL: 13047
+T: 1821500, bestHPWL: 13047
+T: 1809300, bestHPWL: 13035
+T: 1773200, bestHPWL: 13021
+T: 1761500, bestHPWL: 13021
+T: 1749700, bestHPWL: 13007
+T: 1749000, bestHPWL: 13007
+T: 1748300, bestHPWL: 13007
+T: 1747600, bestHPWL: 13007
+T: 1746900, bestHPWL: 13007
+T: 1746200, bestHPWL: 13007
+T: 1745500, bestHPWL: 13007
+T: 1744800, bestHPWL: 13007
+T: 1744100, bestHPWL: 13007
+T: 1743400, bestHPWL: 13007
+T: 1742700, bestHPWL: 13007
+T: 1742000, bestHPWL: 13007
+T: 1741300, bestHPWL: 13007
+T: 1740600, bestHPWL: 13007
+T: 1739900, bestHPWL: 13007
+T: 1731200, bestHPWL: 13005
+T: 1724100, bestHPWL: 13005
+T: 1718400, bestHPWL: 13005
+T: 1714100, bestHPWL: 13005
+T: 1704500, bestHPWL: 12947
+T: 1683600, bestHPWL: 12947
+T: 1668300, bestHPWL: 12947
+T: 1655800, bestHPWL: 12947
+T: 1649000, bestHPWL: 12947
+T: 1645700, bestHPWL: 12947
+T: 1642400, bestHPWL: 12947
+T: 1616900, bestHPWL: 12944
+T: 1588600, bestHPWL: 12944
+T: 1520300, bestHPWL: 12931
+T: 1500600, bestHPWL: 12931
+T: 1481900, bestHPWL: 12925
+T: 1467400, bestHPWL: 12855
+T: 1447800, bestHPWL: 12853
+T: 1444900, bestHPWL: 12853
+T: 1442000, bestHPWL: 12847
+T: 1425600, bestHPWL: 12847
+T: 1414200, bestHPWL: 12847
+T: 1404300, bestHPWL: 12847
+T: 1382900, bestHPWL: 12847
+T: 1368400, bestHPWL: 12847
+T: 1335700, bestHPWL: 12847
+T: 1309800, bestHPWL: 12847
+T: 1258500, bestHPWL: 12840.5
+T: 1252200, bestHPWL: 12840.5
+T: 1237700, bestHPWL: 12840.5
+T: 1234600, bestHPWL: 12826.5
+T: 1231500, bestHPWL: 12826.5
+T: 1223000, bestHPWL: 12826.5
+T: 1209800, bestHPWL: 12798.5
+T: 1189800, bestHPWL: 12798.5
+T: 1166500, bestHPWL: 12782.5
+T: 1159600, bestHPWL: 12782.5
+T: 1156700, bestHPWL: 12782.5
+T: 1153800, bestHPWL: 12782.5
+T: 1150900, bestHPWL: 12782.5
+T: 1109800, bestHPWL: 12782.5
+T: 1081300, bestHPWL: 12782.5
+T: 1077400, bestHPWL: 12782.5
+T: 1074700, bestHPWL: 12782.5
+T: 1072000, bestHPWL: 12782.5
+T: 1063100, bestHPWL: 12782.5
+T: 1038600, bestHPWL: 12782.5
+T: 1036000, bestHPWL: 12782.5
+T: 1033400, bestHPWL: 12782.5
+T: 1030800, bestHPWL: 12782.5
+T: 1024200, bestHPWL: 12760.5
+T: 1001800, bestHPWL: 12760.5
+T: 988200, bestHPWL: 12747.5
+T: 963100, bestHPWL: 12747.5
+T: 959900, bestHPWL: 12747.5
+T: 957500, bestHPWL: 12747.5
+T: 955100, bestHPWL: 12747.5
+T: 952700, bestHPWL: 12747.5
+T: 950300, bestHPWL: 12747.5
+T: 921700, bestHPWL: 12747.5
+T: 903900, bestHPWL: 12742.5
+T: 883500, bestHPWL: 12739.5
+T: 879500, bestHPWL: 12739.5
+T: 877300, bestHPWL: 12739.5
+T: 875100, bestHPWL: 12739.5
+T: 872900, bestHPWL: 12739.5
+T: 870700, bestHPWL: 12739.5
+T: 869300, bestHPWL: 12739.5
+T: 860600, bestHPWL: 12739.5
+T: 839900, bestHPWL: 12722.5
+T: 837800, bestHPWL: 12722.5
+T: 835700, bestHPWL: 12722.5
+T: 833600, bestHPWL: 12722.5
+T: 831500, bestHPWL: 12722.5
+T: 827000, bestHPWL: 12722.5
+T: 805000, bestHPWL: 12722.5
+T: 783500, bestHPWL: 12722.5
+T: 762800, bestHPWL: 12718.5
+Checking if the answer is valid...Successfully !
+duration: 590 seconds.
+Given input's HPWL: 15701.86964
+After initPlace HPWL: 16272
+Best HPWL after legalization: 12718.5, which has 19% imporved than Given input's HPWL
+====================== Running testcase 2 ======================
+rm -f legalizer
+g++ -std=c++17 -O3 -Wall -Wextra main.cpp -o legalizer
+./legalizer ./input/testcase2/architecture.txt ./input/testcase2/instance.txt ./input/testcase2/netlist.txt ./output/output2.txt
+T: 9999000, bestHPWL: 1.12515e+07
+T: 9998000, bestHPWL: 1.12514e+07
+T: 9997000, bestHPWL: 1.12514e+07
+T: 9996000, bestHPWL: 1.12514e+07
+T: 9995000, bestHPWL: 1.12506e+07
+T: 9994000, bestHPWL: 1.12504e+07
+T: 9993000, bestHPWL: 1.12491e+07
+T: 9992000, bestHPWL: 1.12479e+07
+T: 9991000, bestHPWL: 1.12477e+07
+T: 9990000, bestHPWL: 1.12477e+07
+Checking if the answer is valid...Successfully !
+duration: 604 seconds.
+Given input's HPWL: 11197195.77
+After initPlace HPWL: 11252608
+Best HPWL after legalization: 11229186.5, which has -0.2857% imporved than Given input's HPWL
+====================== Running testcase 3 ======================
+rm -f legalizer
+g++ -std=c++17 -O3 -Wall -Wextra main.cpp -o legalizer
+./legalizer ./input/testcase3/architecture.txt ./input/testcase3/instance.txt ./input/testcase3/netlist.txt ./output/output3.txt
+T: 9999000, bestHPWL: 256251
+T: 9998000, bestHPWL: 256131
+T: 9997000, bestHPWL: 254538
+T: 9996000, bestHPWL: 254148
+T: 9995000, bestHPWL: 253923
+T: 9994000, bestHPWL: 253480
+T: 9993000, bestHPWL: 253375
+T: 9992000, bestHPWL: 253036
+T: 9991000, bestHPWL: 252616
+T: 9990000, bestHPWL: 252588
+T: 9840200, bestHPWL: 219120
+T: 9652000, bestHPWL: 194782
+T: 9522500, bestHPWL: 179902
+T: 9442800, bestHPWL: 175058
+T: 9291900, bestHPWL: 166766
+T: 9225200, bestHPWL: 163294
+T: 9002700, bestHPWL: 153826
+T: 8986500, bestHPWL: 153506
+T: 8874800, bestHPWL: 150869
+T: 8732100, bestHPWL: 146896
+T: 8692000, bestHPWL: 146210
+T: 8680700, bestHPWL: 145682
+T: 8505300, bestHPWL: 139166
+T: 8463700, bestHPWL: 138486
+T: 8402100, bestHPWL: 137466
+T: 8185500, bestHPWL: 132552
+T: 8167500, bestHPWL: 132228
+T: 8104000, bestHPWL: 130296
+T: 7798500, bestHPWL: 124282
+T: 7794600, bestHPWL: 124232
+T: 7790700, bestHPWL: 124191
+T: 7713900, bestHPWL: 122722
+T: 7703100, bestHPWL: 122496
+T: 7645500, bestHPWL: 121760
+T: 7567100, bestHPWL: 120164
+T: 7396400, bestHPWL: 118398
+T: 7392700, bestHPWL: 118376
+T: 7369800, bestHPWL: 118148
+T: 7002400, bestHPWL: 113750
+T: 6987000, bestHPWL: 113565
+T: 6919500, bestHPWL: 113152
+T: 6876700, bestHPWL: 112401
+T: 6836900, bestHPWL: 111032
+T: 6749200, bestHPWL: 110390
+T: 6746500, bestHPWL: 110390
+T: 6743800, bestHPWL: 110390
+T: 6741100, bestHPWL: 110380
+T: 6699400, bestHPWL: 110048
+T: 6692700, bestHPWL: 110022
+T: 6671300, bestHPWL: 109866
+T: 6597600, bestHPWL: 109264
+T: 6594300, bestHPWL: 109254
+T: 6591000, bestHPWL: 109254
+T: 6531900, bestHPWL: 108867
+T: 6503200, bestHPWL: 108643
+T: 6486300, bestHPWL: 108471
+T: 6406300, bestHPWL: 107196
+T: 6303900, bestHPWL: 106138
+T: 6285000, bestHPWL: 106046
+T: 6276200, bestHPWL: 105982
+T: 6238000, bestHPWL: 105054
+T: 6213700, bestHPWL: 104630
+T: 6205000, bestHPWL: 104608
+T: 6115600, bestHPWL: 103902
+T: 6080200, bestHPWL: 103500
+T: 6064400, bestHPWL: 103451
+T: 6001000, bestHPWL: 103099
+T: 5988400, bestHPWL: 103064
+T: 5841000, bestHPWL: 101136
+T: 5800800, bestHPWL: 100717
+T: 5767800, bestHPWL: 100405
+T: 5721800, bestHPWL: 99796
+T: 5711500, bestHPWL: 99776
+T: 5707500, bestHPWL: 99734
+T: 5624700, bestHPWL: 99092
+T: 5598300, bestHPWL: 98863
+T: 5595500, bestHPWL: 98863
+T: 5592700, bestHPWL: 98843
+T: 5589900, bestHPWL: 98838.5
+T: 5573700, bestHPWL: 98754.5
+T: 5558100, bestHPWL: 98715.5
+T: 5543100, bestHPWL: 98609.5
+T: 5537000, bestHPWL: 98601.5
+T: 5505500, bestHPWL: 98216
+T: 5468700, bestHPWL: 98055
+T: 5436500, bestHPWL: 97756.5
+T: 5427800, bestHPWL: 97568.5
+T: 5398000, bestHPWL: 97416
+T: 5395300, bestHPWL: 97416
+T: 5392600, bestHPWL: 97409
+T: 5389900, bestHPWL: 97388
+T: 5358700, bestHPWL: 97225.5
+T: 5283600, bestHPWL: 96788.5
+T: 5258800, bestHPWL: 96523.5
+T: 5185100, bestHPWL: 96136
+T: 5061000, bestHPWL: 95562
+T: 5013100, bestHPWL: 95368
+T: 4976100, bestHPWL: 95158
+T: 4929000, bestHPWL: 94188.5
+T: 4834200, bestHPWL: 93968
+T: 4789400, bestHPWL: 93677
+T: 4475100, bestHPWL: 91075.5
+T: 4453200, bestHPWL: 90907.5
+T: 4425200, bestHPWL: 90752.5
+T: 4419000, bestHPWL: 90709.5
+T: 4387700, bestHPWL: 90546
+T: 4370600, bestHPWL: 90482
+T: 4346600, bestHPWL: 90209
+T: 4335300, bestHPWL: 90065.5
+T: 4297700, bestHPWL: 89586
+T: 4293400, bestHPWL: 89578
+T: 4274100, bestHPWL: 89484
+T: 4248500, bestHPWL: 89421
+T: 4246800, bestHPWL: 89418
+T: 4245100, bestHPWL: 89386
+T: 4243400, bestHPWL: 89382
+T: 4241700, bestHPWL: 89381
+T: 4240000, bestHPWL: 89380
+T: 4176800, bestHPWL: 89000
+T: 4138500, bestHPWL: 88828
+T: 4098500, bestHPWL: 88578
+T: 4094400, bestHPWL: 88554
+T: 4090300, bestHPWL: 88553
+T: 4085800, bestHPWL: 88547
+T: 4008000, bestHPWL: 88260
+T: 3982000, bestHPWL: 88021.5
+T: 3930500, bestHPWL: 87877.5
+T: 3896800, bestHPWL: 87680.5
+T: 3892900, bestHPWL: 87675.5
+T: 3882000, bestHPWL: 87631.5
+T: 3863000, bestHPWL: 87583.5
+T: 3854500, bestHPWL: 87556.5
+T: 3781100, bestHPWL: 87207.5
+T: 3706500, bestHPWL: 87015
+T: 3644300, bestHPWL: 86696
+T: 3638100, bestHPWL: 86645
+T: 3500500, bestHPWL: 85965.5
+T: 3489300, bestHPWL: 85926.5
+T: 3457300, bestHPWL: 85766.5
+Checking if the answer is valid...Successfully !
+duration: 596 seconds.
+Given input's HPWL: 257401.8558
+After initPlace HPWL: 256764.5
+Best HPWL after legalization: 85257.5, which has 66.878% imporved than Given input's HPWL
+====================== Running testcase 4 ======================
+rm -f legalizer
+g++ -std=c++17 -O3 -Wall -Wextra main.cpp -o legalizer
+./legalizer ./input/testcase4/architecture.txt ./input/testcase4/instance.txt ./input/testcase4/netlist.txt ./output/output4.txt
+T: 9999000, bestHPWL: 1.02448e+08
+T: 9998000, bestHPWL: 1.02392e+08
+T: 9997000, bestHPWL: 1.02344e+08
+T: 9996000, bestHPWL: 1.02312e+08
+T: 9995000, bestHPWL: 1.02273e+08
+T: 9994000, bestHPWL: 1.02262e+08
+T: 9993000, bestHPWL: 1.02215e+08
+T: 9992000, bestHPWL: 1.0218e+08
+T: 9991000, bestHPWL: 1.02157e+08
+T: 9990000, bestHPWL: 1.02098e+08
+Checking if the answer is valid...Successfully !
+duration: 620 seconds.
+Given input's HPWL: 102441640.9
+After initPlace HPWL: 102480150
+Best HPWL after legalization: 100869789.5, which has 1.5344% imporved than Given input's HPWL
+====================== Verifying testcase 1 ======================
+./verifier2 ./input/testcase1/architecture.txt ./input/testcase1/instance.txt ./input/testcase1/netlist.txt ./output/output1.txt
+Reading resource information...
+Reading instance information...
+Reading netlist information...
+Reading output information...
+Resource "RESOURCE44509" does not exist!!
+====================== Verifying testcase 2 ======================
+./verifier2 ./input/testcase2/architecture.txt ./input/testcase2/instance.txt ./input/testcase2/netlist.txt ./output/output2.txt
+Reading resource information...
+Reading instance information...
+Reading netlist information...
+Reading output information...
+Checking the first constraint...
+Checking the second constraint...
+Checking the third constraint...
+Calculating total HPWL...
+Total HPWL = 11229186.5
+====================== Verifying testcase 3 ======================
+./verifier2 ./input/testcase3/architecture.txt ./input/testcase3/instance.txt ./input/testcase3/netlist.txt ./output/output3.txt
+Reading resource information...
+Reading instance information...
+Reading netlist information...
+Reading output information...
+Checking the first constraint...
+Checking the second constraint...
+Checking the third constraint...
+Calculating total HPWL...
+Total HPWL = 85257.5
+====================== Verifying testcase 4 ======================
+./verifier2 ./input/testcase4/architecture.txt ./input/testcase4/instance.txt ./input/testcase4/netlist.txt ./output/output4.txt
+Reading resource information...
+Reading instance information...
+Reading netlist information...
+Reading output information...
+Checking the first constraint...
+Checking the second constraint...
+Checking the third constraint...
+Calculating total HPWL...
+Total HPWL = 100869789.5

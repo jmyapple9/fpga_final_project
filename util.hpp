@@ -54,13 +54,12 @@ bool checkValid(vector<Instance> &instances, vector<vector<Slot>> &Resource)
     // cout << "instances.size(): "<< instances.size() << endl;
     for (auto inst : instances)
     {
-        if (inst.type == 0)
-        {
-            if (inst.rsrc < (int)Resource[CLB].size() and inst.rsrc >= 0)
+        if(inst.type == 0 or inst.type == 1 or inst.type == 2){
+            if (inst.rsrc < (int)Resource[inst.type].size() and inst.rsrc >= 0)
             {
-                if (Resource[CLB][inst.rsrc].stored != inst.Iid)
+                if (Resource[inst.type][inst.rsrc].stored != inst.Iid)
                 {
-                    cout << "Invalid! Slot stored " << Resource[CLB][inst.rsrc].stored << " and instance Iid " << inst.Iid << " miss match" << endl;
+                    cout << "Invalid! Slot stored " << Resource[inst.type][inst.rsrc].stored << " and instance Iid " << inst.Iid << " miss match" << endl;
                     return false;
                 }
             }
@@ -70,45 +69,26 @@ bool checkValid(vector<Instance> &instances, vector<vector<Slot>> &Resource)
                 return false;
             }
         }
-        else if (inst.type == 1)
-        {
-            if (inst.rsrc < (int)Resource[RAM].size() and inst.rsrc >= 0)
-            {
-                if (Resource[RAM][inst.rsrc].stored != inst.Iid)
-                {
-                    cout << "Invalid! Slot stored idx " << Resource[RAM][inst.rsrc].stored << " and instance Iid " << inst.Iid << " miss match" << endl;
-                    return false;
-                }
-            }
-            else
-            {
-                cout << "Invalid! Slot id in instance " << inst.name << " is wrong: " << inst.rsrc << endl;
-                return false;
-            }
-        }
-        else if (inst.type == 2)
-        {
-            if (inst.rsrc < (int)Resource[DSP].size() and inst.rsrc >= 0)
-            {
-                if (Resource[DSP][inst.rsrc].stored != inst.Iid)
-                {
-                    cout << "Invalid! Slot stored idx " << Resource[DSP][inst.rsrc].stored << " and instance Iid " << inst.Iid << " miss match" << endl;
-                    return false;
-                }
-            }
-            else
-            {
-                cout << "Invalid! Slot id in instance " << inst.name << " is wrong: " << inst.rsrc << endl;
-                return false;
-            }
-        }
-        else if(inst.type == 3) ; // skip checking IO
+        else if (inst.type == 3)
+            ; // skip checking IO
         else
         {
             cout << "Invalid! Instance " << inst.name << " has invalid type number: " << inst.type << endl;
             return false;
         }
+        
+        // checking if two instance use same resource
+        for (auto inst2 : instances)
+        {
+            if (inst2.rsrc == inst.rsrc and inst2.type == inst.type and inst.type != 3 and inst2.Iid != inst.Iid)
+            {
+                cout << "Invalid! " << inst2.name << " and " << inst.name << " use the same resource: RESOURCE" << Resource[inst.type][inst.rsrc].Rid + 1 << endl;
+            }
+        }
+
+
     }
+
     return true;
 }
 
@@ -120,7 +100,7 @@ void updateResourceToBest(vector<Instance> &bestInstances, vector<vector<Slot>> 
             Resource[CLB][inst.rsrc].stored = inst.Iid;
         else if (inst.type == 1)
             Resource[RAM][inst.rsrc].stored = inst.Iid;
-        else if(inst.type==2)
+        else if (inst.type == 2)
             Resource[DSP][inst.rsrc].stored = inst.Iid;
     }
 }

@@ -8,7 +8,7 @@ vector<Instance> instances, bestInstances;
 vector<Net> nets;
 unordered_map<string, int> inst_name_id;
 
-double bestWL{DBL_MAX}, perturbWL{0.0}, originWL{0.0};
+double bestHPWL{DBL_MAX}, perturbWL{0.0}, originWL{0.0};
 pair<int, int> prev_swap;
 int oldtype, oldr1, oldr2;
 
@@ -126,6 +126,9 @@ void netParser(string path)
 
 double HPWL()
 {
+    // TODO:
+    // 1. build a net vector for each instance(module) so that we can calculate HPWL faster!
+    // 2.
 
     // cout << "Enter HPWL" << endl;
     // auto start_time = chrono::system_clock::now();
@@ -141,9 +144,7 @@ double HPWL()
 
         for (auto instId : net.insts)
         {
-            // cout << "1";
             double x{instances[instId].x}, y{instances[instId].y};
-            // cout << "2";
             xmax = max(xmax, x);
             xmin = min(xmin, x);
             ymax = max(ymax, y);
@@ -151,7 +152,6 @@ double HPWL()
         }
         hpwl += ((xmax - xmin) + (ymax - ymin));
     }
-    // cout << "hpwl after initPlace: " << hpwl << endl;
     // cout << "end HPWL" << endl;
     return hpwl;
 }
@@ -159,7 +159,6 @@ double HPWL()
 void initPlace()
 {
     // cout << "Enter initPlace" << endl;
-    // int clbIdx{0}, ramIdx{0}, dspIdx{0};
 
     for (auto &inst : instances)
     {
@@ -167,7 +166,6 @@ void initPlace()
         int type = inst.type;
         if (type == 3)
             continue;
-        // cout << "type: " << type << endl;
         auto x_low = lower_bound(Resource[type].begin(), Resource[type].end(), Slot(0, inst.x - 40, 0), compareSlotByX);
         auto x_high = lower_bound(Resource[type].begin(), Resource[type].end(), Slot(0, inst.x + 40, 0), compareSlotByX);
 
@@ -319,12 +317,12 @@ void SA()
     // cout << "Enter SA()" << endl;
     double reject, reduceRatio = 0.9999;
     int nAns, uphill, T = 10000000, N = 100; // N: number of answer in T
-    bestWL = originWL;
+    bestHPWL = originWL;
     do
     {
         reject = nAns = uphill = 0.;
-        
-        if(chrono::system_clock::now() >= end_time)
+
+        if (chrono::system_clock::now() >= end_time)
             return;
 
         while (uphill < N and nAns < 2 * N)
@@ -342,10 +340,10 @@ void SA()
                     ++uphill;
 
                 originWL = perturbWL;
-                if (originWL < bestWL)
+                if (originWL < bestHPWL)
                 {
                     bestInstances = instances;
-                    bestWL = originWL;
+                    bestHPWL = originWL;
                 }
             }
             else
@@ -357,7 +355,7 @@ void SA()
 
         T *= reduceRatio;
         if (T % 100 == 0)
-            cout << "T: " << T << ", bestWL: " << bestWL << endl;
+            cout << "T: " << T << ", bestHPWL: " << bestHPWL << endl;
     } while (/* reject / nAns <= 0.95 and */ T > 10);
     // cout << "end SA" << endl;
 }
@@ -377,23 +375,29 @@ int main(int argc, char *argv[])
     netParser(arg.netPath);
 
     // checkParsers(instances, nets, Resource);
-    cout << "Given input's HPWL: " << setprecision(10) << HPWL() << endl;
+    double rawHPWL = -1.0, initHPWL = -1.0;
+    rawHPWL = HPWL();
     initPlace();
     // randomInitPlace();
-    originWL = HPWL();
-    cout << "After initPlace HPWL: " << setprecision(10) << originWL << endl;
+    initHPWL = originWL = HPWL();
     bestInstances = instances;
 
     SA();
 
     updateResourceToBest(bestInstances, Resource);
-    // if (checkValid(bestInstances, Resource))
-    //     cout << "Successfully !" << endl;
-    // else
-    //     cout << "Failed to make placement legal... " << endl;
-    
+    instances = bestInstances;
+    if (checkValid(bestInstances, Resource))
+        cout << "Successfully !" << endl;
+    else
+        cout << "Failed to make placement legal... " << endl;
+
     auto realDuration = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - start_time);
     cout << "duration: " << realDuration.count() << " seconds." << endl;
+
+    cout << "Given input's HPWL: " << setprecision(10) << rawHPWL << endl;
+    cout << "After initPlace HPWL: " << setprecision(10) << initHPWL << endl;
+    cout << "Best HPWL after legalization: " << setprecision(10) << bestHPWL << ", which has " << setprecision(5)
+         << ((10000 * ((rawHPWL - bestHPWL) / rawHPWL)) / 100) << "%"<<" imporved than Given input's HPWL" << endl;
 
     output(arg.outPath, bestInstances, Resource);
 }
