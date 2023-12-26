@@ -229,41 +229,6 @@ void initPlace()
     // originWL = HPWL();
 }
 
-void randomInitPlace()
-{
-    // cout << "Enter initPlace" << endl;
-    int clbIdx{0}, ramIdx{0}, dspIdx{0};
-    for (auto &inst : instances)
-    {
-        if (inst.type == 0)
-        {
-            inst.rsrc = clbIdx;
-            inst.x = Resource[CLB][clbIdx].x;
-            inst.y = Resource[CLB][clbIdx].y;
-            Resource[CLB][clbIdx++].stored = inst.Iid;
-        }
-        else if (inst.type == 1)
-        {
-            inst.rsrc = ramIdx;
-            inst.x = Resource[RAM][clbIdx].x;
-            inst.y = Resource[RAM][clbIdx].y;
-            Resource[RAM][ramIdx++].stored = inst.Iid;
-        }
-        else if (inst.type == 2)
-        {
-            inst.rsrc = dspIdx;
-            inst.x = Resource[DSP][clbIdx].x;
-            inst.y = Resource[DSP][clbIdx].y;
-            Resource[DSP][dspIdx++].stored = inst.Iid;
-        }
-        else
-        {
-
-            ; // don't need to place IO block
-        }
-    }
-    // originWL = HPWL();
-}
 
 bool accept(double cost, int T)
 {
@@ -288,7 +253,30 @@ struct ascendingY
         return (instances[instId1].y < instances[instId2].y);
     }
 };
-void Swap(int type, int r1, int r2)
+
+double localHPWL(Instance &inst)
+{
+    double local = 0;
+    for (int netID : inst.net)
+    {
+        double
+            xmax{numeric_limits<double>::lowest()},
+            xmin{numeric_limits<double>::max()},
+            ymax{numeric_limits<double>::lowest()},
+            ymin{numeric_limits<double>::max()};
+        for (auto instId : nets[netID].insts)
+        {
+            double x{instances[instId].x}, y{instances[instId].y};
+            xmax = max(xmax, x);
+            xmin = min(xmin, x);
+            ymax = max(ymax, y);
+            ymin = min(ymin, y);
+        }
+        local += ((xmax - xmin) + (ymax - ymin));
+    }
+    return local;
+}
+double Swap(int type, int r1, int r2)
 {
     Slot &slot1 = Resource[type][r1];
     Slot &slot2 = Resource[type][r2];
@@ -297,20 +285,28 @@ void Swap(int type, int r1, int r2)
     if (slot1.stored == -1)
         cout << "Error! slot1 should never be empty" << endl;
 
+    // double localHpwl = 0;
+
     if (slot2.stored == -1)
     {
+        double beforeSwap = localHPWL(inst1);
+
         slot2.stored = inst1.Iid;
         slot1.stored = -1;
 
         inst1.rsrc = r2;
         inst1.x = slot2.x;
         inst1.y = slot2.y;
+        return localHPWL(inst1) - beforeSwap;
     }
     else
     {
         Instance &inst2 = instances[slot2.stored];
         if (inst1.type != inst2.type)
             cout << "Error! try swapping instances in different type!" << endl;
+
+        double beforeSwap = localHPWL(inst1) + localHPWL(inst2);
+
 
         slot1.stored = inst2.Iid;
         slot2.stored = inst1.Iid;
@@ -322,11 +318,16 @@ void Swap(int type, int r1, int r2)
         inst2.x = slot1.x;
         inst2.y = slot1.y;
         inst2.rsrc = r1;
+        return localHPWL(inst1) + localHPWL(inst2) - beforeSwap;
     }
     // cout << "exit swap" << endl;
+    // if(slot2.stored == -1)
+    //     return {inst1.Iid, -1};
+    // else
+    //     return {inst1.Iid, instances[slot2.stored].Iid};
 }
 
-void perturb()
+double perturb()
 {
     // cout << "Enter perturb" << endl;
     int instID, ResID;
@@ -341,7 +342,7 @@ void perturb()
     ResID = rand() % Resource[randInst.type].size();
     // Slot &slot = Resource[randInst.type][ResID];
     oldtype = randInst.type, oldr1 = randInst.rsrc, oldr2 = ResID;
-    Swap(randInst.type, randInst.rsrc, ResID);
+    return Swap(randInst.type, randInst.rsrc, ResID);
 }
 
 void SA()
@@ -360,18 +361,20 @@ void SA()
         while (uphill < N and nAns < 2 * N)
         {
             // int act = rand() % 4;
-            perturb();
+            // perturb();
             ++nAns;
-            perturbWL = HPWL();
+            // perturbWL = HPWL();
 
-            double deltaCost = perturbWL - originWL;
+            // double deltaCost = perturbWL - originWL;
+            double deltaCost = perturb();
+
             if (deltaCost <= 0)
             // if (deltaCost <= 0  or accept(deltaCost, T))
             {
                 if (deltaCost > 0)
                     ++uphill;
 
-                originWL = perturbWL;
+                originWL = originWL + deltaCost;
                 if (originWL < bestHPWL)
                 {
                     bestInstances = instances;
@@ -415,7 +418,7 @@ int main(int argc, char *argv[])
     bestHPWL = initHPWL = originWL = HPWL();
     bestInstances = instances;
 
-    // SA();
+    SA();
 
     updateResourceToBest(bestInstances, Resource);
     instances = bestInstances;
