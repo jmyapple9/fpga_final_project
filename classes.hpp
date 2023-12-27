@@ -64,6 +64,7 @@ public:
 class Instance
 {
 public:
+    Instance(){};
     Instance(int _Iid, int _type, float _x, float _y, string _name)
         : Iid(_Iid), type(_type), x(_x), y(_y), name(_name)
     {

@@ -34,16 +34,7 @@ void archParser(string path)
 
         type = (typeStr != "DSP") ? ((typeStr != "RAM") ? 0 : 1) : 2;
         Resource[type].emplace_back(Slot(Rid++, x, y));
-        // if (typeStr == "CLB")
-        //     Resource[CLB].emplace_back(Slot(Rid++, x, y));
-        // else if (typeStr == "RAM")
-        //     Resource[RAM].emplace_back(Slot(Rid++, x, y));
-        // else if (typeStr == "DSP")
-        //     Resource[DSP].emplace_back(Slot(Rid++, x, y));
-        // else
-        //     cout << "Error! There's no type \"" << typeStr << "\"\n";
     }
-
     in_file.close();
 }
 
@@ -120,7 +111,6 @@ void netParser(string path)
         nets.emplace_back(net);
         ++netId;
     }
-
     in_file.close();
 }
 
@@ -154,38 +144,6 @@ double HPWL()
     }
     // cout << "end HPWL" << endl;
     return hpwl;
-}
-
-void initPlace2()
-{
-    for (auto &inst : instances)
-    {
-        int type = inst.type;
-        int bestSlotID = -1;
-        int slotID = 0;
-        float shortestDist = numeric_limits<float>::max();
-        if (inst.type == 3)
-            continue;
-        for (auto res : Resource[type])
-        {
-            if (res.stored == -1)
-            {
-
-                float dist = abs(res.x - inst.x) + abs(res.y - inst.y);
-                if (dist < shortestDist)
-                {
-                    shortestDist = dist;
-                    bestSlotID = slotID;
-                }
-            }
-            slotID++;
-            // unsigned SlotID = distance(Resource[type].begin(), can);
-        }
-        inst.rsrc = bestSlotID;
-        inst.x = Resource[type][bestSlotID].x;
-        inst.y = Resource[type][bestSlotID].y;
-        Resource[type][bestSlotID].stored = inst.Iid;
-    }
 }
 
 void initPlace()
@@ -229,12 +187,11 @@ void initPlace()
     // originWL = HPWL();
 }
 
-
 bool accept(double cost, int T)
 {
     double random = static_cast<double>(rand()) / RAND_MAX;
-    bool ac = exp(-cost * 100 / T) > random;
-    // cout << (ac ? "accept" : "notAccept") << ": " << exp(-cost*100 / T )  << endl;
+    bool ac = exp(-(cost*8000000) / T ) > random;
+    // cout << (ac ? "accept!" : "notAccept") << ": " << exp(-(cost*8000000) / T )  << endl;
     return ac;
 }
 // 46815
@@ -254,7 +211,7 @@ struct ascendingY
     }
 };
 
-double localHPWL(Instance &inst)
+double netHPWL(Instance &inst)
 {
     double local = 0;
     for (int netID : inst.net)
@@ -276,7 +233,8 @@ double localHPWL(Instance &inst)
     }
     return local;
 }
-double Swap(int type, int r1, int r2)
+
+double Swap(int type, int r1, int r2, bool revert)
 {
     Slot &slot1 = Resource[type][r1];
     Slot &slot2 = Resource[type][r2];
@@ -285,11 +243,12 @@ double Swap(int type, int r1, int r2)
     if (slot1.stored == -1)
         cout << "Error! slot1 should never be empty" << endl;
 
-    // double localHpwl = 0;
-
+    // double netHpwl = 0;
+    double beforeSwap = -1;
     if (slot2.stored == -1)
     {
-        double beforeSwap = localHPWL(inst1);
+        if (!revert)
+            beforeSwap = netHPWL(inst1);
 
         slot2.stored = inst1.Iid;
         slot1.stored = -1;
@@ -297,7 +256,10 @@ double Swap(int type, int r1, int r2)
         inst1.rsrc = r2;
         inst1.x = slot2.x;
         inst1.y = slot2.y;
-        return localHPWL(inst1) - beforeSwap;
+        if (!revert)
+            return netHPWL(inst1) - beforeSwap;
+        else
+            return -1.0;
     }
     else
     {
@@ -305,8 +267,8 @@ double Swap(int type, int r1, int r2)
         if (inst1.type != inst2.type)
             cout << "Error! try swapping instances in different type!" << endl;
 
-        double beforeSwap = localHPWL(inst1) + localHPWL(inst2);
-
+        if (!revert)
+            beforeSwap = netHPWL(inst1) + netHPWL(inst2);
 
         slot1.stored = inst2.Iid;
         slot2.stored = inst1.Iid;
@@ -318,13 +280,13 @@ double Swap(int type, int r1, int r2)
         inst2.x = slot1.x;
         inst2.y = slot1.y;
         inst2.rsrc = r1;
-        return localHPWL(inst1) + localHPWL(inst2) - beforeSwap;
+
+        if (!revert)
+            return netHPWL(inst1) + netHPWL(inst2) - beforeSwap;
+        else
+            return -1.0;
     }
-    // cout << "exit swap" << endl;
-    // if(slot2.stored == -1)
-    //     return {inst1.Iid, -1};
-    // else
-    //     return {inst1.Iid, instances[slot2.stored].Iid};
+
 }
 
 double perturb()
@@ -342,14 +304,14 @@ double perturb()
     ResID = rand() % Resource[randInst.type].size();
     // Slot &slot = Resource[randInst.type][ResID];
     oldtype = randInst.type, oldr1 = randInst.rsrc, oldr2 = ResID;
-    return Swap(randInst.type, randInst.rsrc, ResID);
+    return Swap(randInst.type, randInst.rsrc, ResID, false);
 }
 
 void SA()
 {
     // cout << "Enter SA()" << endl;
     double reject, reduceRatio = 0.9999;
-    int nAns, uphill, T = 10000000, N = 100; // N: number of answer in T
+    int nAns, uphill, T = 1000000000, N = 100; // N: number of answer in T
     bestHPWL = originWL;
     do
     {
@@ -360,16 +322,12 @@ void SA()
 
         while (uphill < N and nAns < 2 * N)
         {
-            // int act = rand() % 4;
-            // perturb();
             ++nAns;
             // perturbWL = HPWL();
-
             // double deltaCost = perturbWL - originWL;
             double deltaCost = perturb();
-
+            // if (deltaCost <= 0 or accept(deltaCost, T))
             if (deltaCost <= 0)
-            // if (deltaCost <= 0  or accept(deltaCost, T))
             {
                 if (deltaCost > 0)
                     ++uphill;
@@ -384,13 +342,14 @@ void SA()
             else
             {
                 ++reject;
-                Swap(oldtype, oldr2, oldr1);
+                Swap(oldtype, oldr2, oldr1, true);
             }
         }
 
         T *= reduceRatio;
         if (T % 100 == 0)
             cout << "T: " << T << ", bestHPWL: " << bestHPWL << endl;
+        if(T<15) T = 1000000;
     } while (/* reject / nAns <= 0.95 and */ T > 10);
     // cout << "end SA" << endl;
 }
@@ -398,7 +357,7 @@ void SA()
 int main(int argc, char *argv[])
 {
     chrono::duration<int, std::ratio<60>> minutes(9);
-    chrono::duration<int> seconds(50);
+    chrono::duration<int> seconds(55);
     start_time = chrono::system_clock::now();
     end_time = start_time + minutes + seconds;
 
@@ -409,12 +368,9 @@ int main(int argc, char *argv[])
     instParser(arg.instPath);
     netParser(arg.netPath);
 
-    // checkParsers(instances, nets, Resource);
     double rawHPWL = -1.0, initHPWL = -1.0;
     rawHPWL = HPWL();
     initPlace();
-    // initPlace2(); // return the same initial placement as initPlace
-    // randomInitPlace();
     bestHPWL = initHPWL = originWL = HPWL();
     bestInstances = instances;
 
@@ -422,19 +378,20 @@ int main(int argc, char *argv[])
 
     updateResourceToBest(bestInstances, Resource);
     instances = bestInstances;
-    if (checkValid(bestInstances, Resource))
+    /* if (checkValid(bestInstances, Resource))
         cout << "Successfully !" << endl;
     else
-        cout << "Failed to make placement legal... " << endl;
+        cout << "Failed to make placement legal... " << endl; */
 
-    auto realDuration = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - start_time);
-    cout << "duration: " << realDuration.count() << " seconds." << endl;
 
     cout << "Given input's HPWL: " << setprecision(10) << rawHPWL << endl;
     cout << "After initPlace HPWL: " << setprecision(10) << initHPWL << endl;
     cout << "Best HPWL after legalization: " << setprecision(10) << bestHPWL << ", which has " << setprecision(5)
          << ((10000 * ((rawHPWL - bestHPWL) / rawHPWL)) / 100) << "%"
-         << " imporved than Given input's HPWL" << endl;
+         << " improved than Given input's HPWL" << endl;
 
     output(arg.outPath, bestInstances, Resource);
+    
+    auto realDuration = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - start_time);
+    cout << "duration: " << realDuration.count() << " seconds." << endl;
 }
