@@ -190,7 +190,7 @@ void initPlace()
 bool accept(double cost, int T)
 {
     double random = static_cast<double>(rand()) / RAND_MAX;
-    bool ac = exp(-(cost*8000000) / T ) > random;
+    bool ac = exp(-(cost * 8000000) / T) > random;
     // cout << (ac ? "accept!" : "notAccept") << ": " << exp(-(cost*8000000) / T )  << endl;
     return ac;
 }
@@ -286,7 +286,6 @@ double Swap(int type, int r1, int r2, bool revert)
         else
             return -1.0;
     }
-
 }
 
 double perturb()
@@ -349,9 +348,53 @@ void SA()
         T *= reduceRatio;
         if (T % 100 == 0)
             cout << "T: " << T << ", bestHPWL: " << bestHPWL << endl;
-        if(T<15) T = 1000000;
+        if (T < 15)
+            T = 1000000;
     } while (/* reject / nAns <= 0.95 and */ T > 10);
     // cout << "end SA" << endl;
+}
+
+void Greedy()
+{
+    double prevWL = bestHPWL = originWL;
+    int same = 0;
+    while (true)
+    {
+        if (chrono::system_clock::now() >= end_time)
+            return;
+
+        double deltaCost = perturb();
+        if (deltaCost <= 0)
+        {
+            originWL = originWL + deltaCost;
+            if (originWL < bestHPWL)
+            {
+                bestInstances = instances;
+                bestHPWL = originWL;
+            }
+        }
+        else
+        {
+            if (same > 1000000 and deltaCost < 50.0 and rand() % 10 == 0)
+            {
+                same = 0;
+                originWL = originWL + deltaCost;
+                cout << "Try uphill !" << endl;
+            }
+            else
+                Swap(oldtype, oldr2, oldr1, true); // revert
+        }
+
+        if (prevWL == originWL)
+            same++;
+        else
+            same = 0;
+
+        prevWL = originWL;
+
+        if (rand() % 100000 == 0)
+            cout << "originWL: " << originWL << ", bestHPWL: " << bestHPWL << endl;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -361,7 +404,8 @@ int main(int argc, char *argv[])
     start_time = chrono::system_clock::now();
     end_time = start_time + minutes + seconds;
 
-    srand(1);
+    srand(11);
+    // srand(1);
     Resource.resize(3); // 3: Resource[CLB], Resource[RAM], Resource[DSP]
     Arg arg(argc, argv);
     archParser(arg.archPath);
@@ -374,7 +418,8 @@ int main(int argc, char *argv[])
     bestHPWL = initHPWL = originWL = HPWL();
     bestInstances = instances;
 
-    SA();
+    // SA();
+    Greedy();
 
     updateResourceToBest(bestInstances, Resource);
     instances = bestInstances;
@@ -383,7 +428,6 @@ int main(int argc, char *argv[])
     else
         cout << "Failed to make placement legal... " << endl; */
 
-
     cout << "Given input's HPWL: " << setprecision(10) << rawHPWL << endl;
     cout << "After initPlace HPWL: " << setprecision(10) << initHPWL << endl;
     cout << "Best HPWL after legalization: " << setprecision(10) << bestHPWL << ", which has " << setprecision(5)
@@ -391,7 +435,7 @@ int main(int argc, char *argv[])
          << " improved than Given input's HPWL" << endl;
 
     output(arg.outPath, bestInstances, Resource);
-    
+
     auto realDuration = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - start_time);
     cout << "duration: " << realDuration.count() << " seconds." << endl;
 }
